@@ -2,6 +2,7 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import numpy as np
 
 class DeepQNetwork(nn.Module):
     def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
@@ -29,3 +30,26 @@ class DeepQNetwork(nn.Module):
         actions = self.fc3(x)
 
         return actions
+
+class Agent():
+    def __init__(self, gamma, epsilon, lr, input_dims, batch_size, n_actions,
+            max_mem_size=100000, eps_end=0.01, eps_dec=5e-4):
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.eps_min = eps_end
+        self.eps_dex = eps_dec
+        self.lr = lr
+        self.action_space = [i for i in range(n_actions)]
+        self.mem_size = max_mem_size
+        self.batch_size = batch_size
+        self.mem_cntr = 0
+
+        self.Q_eval = DeepQNetwork(self.lr, n_actions=n_actions, input_dims=input_dims,
+                                    fc1_dims=256, fc2_dims=256)
+
+        self.state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
+        self.new_state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
+
+        self.action_memory = np.zeros(self.mem_size, dtype=np.int32)
+        self.reward_memory = np.zeros(self.mem_size, dtype=np.float32)
+        self.terminal_memory = np.zeros(self.mem_size, dtype=np.bool)
