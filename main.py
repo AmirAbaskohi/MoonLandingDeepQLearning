@@ -53,3 +53,24 @@ class Agent():
         self.action_memory = np.zeros(self.mem_size, dtype=np.int32)
         self.reward_memory = np.zeros(self.mem_size, dtype=np.float32)
         self.terminal_memory = np.zeros(self.mem_size, dtype=np.bool)
+
+    def store_transition(self, state, action, reward, state_, done):
+        index = self.mem_cntr % self.mem_size
+        self.state_memory[index] = state
+        self.new_state_memory[index] = state_
+        self.reward_memory[index] = reward
+        self.action_memory[index] = action
+        self.terminal_memory[index] = done
+
+        self.mem_cntr += 1
+
+    def choose_action(self, observation):
+        if np.random.random() > self.epsilon:
+            state = T.tensor
+            actions = self.Q_eval.forward(state)
+            action = T.argmax(actions).item()
+
+        else:
+            action = np.random.choice(self.action_space)
+
+        return action
